@@ -1,14 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 export default function Page() {
     const [email, setEmail] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setIsSubmitted(true);
+        if (!email) return;
+        setIsLoading(true);
+        try {
+            const res = await fetch('/api/subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email }),
+            });
+            if (res.ok) {
+                setIsSubmitted(true);
+                setEmail('');
+            } else {
+                const data = await res.json();
+                alert(data?.error || 'Unable to join waitlist, please try again later.');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Network error, please try again later.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -28,7 +51,7 @@ export default function Page() {
                         </span>
                     </div>
                     <span className="font-semibold text-gray-800" data-oid="..n9itw">
-                        GiftDates
+                        Jubilee
                     </span>
                 </div>
                 <button
@@ -308,7 +331,7 @@ export default function Page() {
                                     Join the Waitlist
                                 </h2>
                                 <p className="text-gray-600 mb-6" data-oid="nvkf5n1">
-                                    Be the first to know when GiftDates launches!
+                                    Be the first to know when Jubilee launches!
                                 </p>
                                 <form
                                     onSubmit={handleSubmit}
@@ -322,15 +345,16 @@ export default function Page() {
                                         onChange={(e) => setEmail(e.target.value)}
                                         className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                         required
-                                        data-oid="t5hzl4:"
+                                        data-oid="9txw5m-"
                                     />
 
                                     <button
                                         type="submit"
-                                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3 rounded-2xl hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105"
+                                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3 rounded-2xl hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed"
                                         data-oid="c9.3b7y"
+                                        disabled={isLoading}
                                     >
-                                        Join Waitlist
+                                        {isLoading ? 'Sending...' : 'Join Waitlist'}
                                     </button>
                                 </form>
                             </>
@@ -351,7 +375,7 @@ export default function Page() {
                                     You're on the list!
                                 </h2>
                                 <p className="text-gray-600" data-oid="uz9.tjl">
-                                    We'll notify you as soon as GiftDates is ready.
+                                    We'll notify you as soon as Jubilee is ready.
                                 </p>
                             </div>
                         )}
@@ -361,7 +385,17 @@ export default function Page() {
 
             {/* Footer */}
             <footer className="text-center py-8 text-gray-500 text-sm" data-oid="zfgo-p9">
-                <p data-oid="x3_vco5">© 2024 GiftDates. Making gift-giving memorable.</p>
+                <p data-oid="x3_vco5">© 2024 Jubilee. Making gift-giving memorable.</p>
+                <p className="mt-2" data-oid="3se3nm2">
+                    Contact us:{' '}
+                    <a
+                        href="mailto:jubilee@myjubilee.co.za"
+                        className="text-purple-600 hover:text-purple-800"
+                        data-oid="cr01now"
+                    >
+                        jubilee@myjubilee.co.za
+                    </a>
+                </p>
             </footer>
         </div>
     );
